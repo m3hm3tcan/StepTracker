@@ -1,8 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
 import SVG, { Circle } from 'react-native-svg';
+import Animated , {useAnimatedProps, useSharedValue, withTiming, withSpring } from 'react-native-reanimated';
+import { useEffect } from 'react';
+ 
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
 
 type RingProgressPros = {
-    radius: number;
+    radius: number; 
     strokeWidth?: number;
     progress:number;
 }
@@ -13,6 +18,19 @@ export default function RingProgress({ radius = 100, strokeWidth = 30, progress 
 
     const innerRadius = radius - strokeWidth / 2;
     const circumference = 2 * Math.PI * innerRadius;
+    
+    const fill = useSharedValue(0);
+
+    useEffect(()=>{
+        fill.value = withTiming(progress, {duration:1500});
+        // fill.value = withSpring(progress, {overshootClamping:true, mass:10});
+
+    },[progress])
+
+    const animatedProps = useAnimatedProps(()=>({
+        strokeDasharray: [circumference * fill.value, circumference],
+    }))
+
     return (
         <View style={{
             width: radius * 2,
@@ -31,7 +49,8 @@ export default function RingProgress({ radius = 100, strokeWidth = 30, progress 
                 />
 
                 {/* progress circle */}
-                <Circle
+                <AnimatedCircle
+                    animatedProps={animatedProps}
                     r={innerRadius}
                     cx={radius}
                     cy={radius}
@@ -39,10 +58,8 @@ export default function RingProgress({ radius = 100, strokeWidth = 30, progress 
                     originY={radius}
                     strokeWidth={strokeWidth}
                     stroke={color}
-                    strokeDasharray={[circumference * progress, circumference]}
                     strokeLinecap='round'
                     rotation="-90"
-
                 />
 
             </SVG>

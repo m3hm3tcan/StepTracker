@@ -6,7 +6,7 @@ import RingProgress from './src/components/RingProgress';
 export default function App() {
   return (
     <View style={styles.container}>
-      <RingProgress radius={100} progress={0.0}/>
+      <RingProgress radius={100} progress={0}/>
 
       <View style={styles.values}>
         <Statistic label="Steps" value="1000" />
