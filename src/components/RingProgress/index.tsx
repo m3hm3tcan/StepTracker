@@ -1,35 +1,44 @@
 import { StyleSheet, Text, View } from 'react-native';
-import SVG, { Circle } from 'react-native-svg';
-import Animated , {useAnimatedProps, useSharedValue, withTiming, withSpring } from 'react-native-reanimated';
+import SVG, { Circle, CircleProps } from 'react-native-svg';
+import { AntDesign } from '@expo/vector-icons';
+import Animated, { useAnimatedProps, useSharedValue, withTiming, withSpring } from 'react-native-reanimated';
 import { useEffect } from 'react';
- 
+
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-
 type RingProgressPros = {
-    radius: number; 
+    radius: number;
     strokeWidth?: number;
-    progress:number;
+    progress: number;
 }
 
 const color = "#EE0F55";
 
-export default function RingProgress({ radius = 100, strokeWidth = 30, progress }: RingProgressPros) {
+export default function RingProgress({ radius = 100, strokeWidth = 35, progress }: RingProgressPros) {
 
     const innerRadius = radius - strokeWidth / 2;
     const circumference = 2 * Math.PI * innerRadius;
-    
+
     const fill = useSharedValue(0);
 
-    useEffect(()=>{
-        fill.value = withTiming(progress, {duration:1500});
+    useEffect(() => {
+        fill.value = withTiming(progress, { duration: 1500 });
         // fill.value = withSpring(progress, {overshootClamping:true, mass:10});
 
-    },[progress])
+    }, [progress])
 
-    const animatedProps = useAnimatedProps(()=>({
+    const animatedProps = useAnimatedProps(() => ({
         strokeDasharray: [circumference * fill.value, circumference],
     }))
+
+    const CirleBaseProps: CircleProps = {
+        r: innerRadius,
+        cx: radius,
+        cy: radius,
+        strokeWidth: strokeWidth,
+        stroke: color,
+
+    }
 
     return (
         <View style={{
@@ -40,29 +49,22 @@ export default function RingProgress({ radius = 100, strokeWidth = 30, progress 
             <SVG>
                 {/* backgorund circle */}
                 <Circle
-                    cx={radius}
-                    cy={radius}
-                    r={innerRadius}
-                    strokeWidth={strokeWidth}
-                    stroke={color}
+                    {...CirleBaseProps}
                     opacity={0.3}
                 />
 
                 {/* progress circle */}
                 <AnimatedCircle
                     animatedProps={animatedProps}
-                    r={innerRadius}
-                    cx={radius}
-                    cy={radius}
+                    {...CirleBaseProps}
                     originX={radius}
                     originY={radius}
-                    strokeWidth={strokeWidth}
-                    stroke={color}
                     strokeLinecap='round'
                     rotation="-90"
                 />
 
             </SVG>
+            <AntDesign name="arrowright" size={strokeWidth * 0.8} color="black" style={{ top: strokeWidth * 0.1, position: 'absolute', alignSelf: 'center' }} />
         </View>
     )
 }
